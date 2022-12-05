@@ -12,7 +12,7 @@ import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import WorkspaceScreen from './WorkspaceScreen';
-
+import { ScreenNames } from '../store';
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -55,11 +55,9 @@ function ListCard(props) {
         setEditActive(newActive);
     }
 
-    async function handleDeleteList(event, id) {
+    async function handleDeleteList(event) {
         event.stopPropagation();
-        let _id = event.target.id;
-        _id = ("" + _id).substring("delete-list-".length);
-        store.markListForDeletion(id);
+        store.markListForDeletion(idNamePair._id);
     }
 
     function handleKeyPress(event) {
@@ -71,6 +69,14 @@ function ListCard(props) {
     }
     function handleUpdateText(event) {
         setText(event.target.value);
+    }
+
+    function publishList(event) {
+        store.publishList(idNamePair._id)
+    }
+
+    function duplicateList(event) {
+        store.duplicateList(idNamePair)
     }
 
     let selectClass = "unselected-list-card";
@@ -88,6 +94,22 @@ function ListCard(props) {
         }
     }, [store.currentList])
 
+    const nameElement = editActive ? 
+            <TextField
+                margin="normal"
+                required
+                fullWidth
+                id={"list-" + idNamePair._id}
+                label="Playlist Name"
+                name="name"
+                autoComplete="Playlist Name"
+                className='list-card'
+                onKeyPress={handleKeyPress}
+                onChange={handleUpdateText}
+                defaultValue={idNamePair.name}
+                autoFocus
+            /> : null
+
     let cardElement =
         <ListItem
             id={idNamePair._id}
@@ -96,6 +118,7 @@ function ListCard(props) {
             style={{ width: '100%', fontSize: '20pt', backgroundColor:'#eeeedd', borderRadius: '13px' }}
             button
             disableRipple
+            onDoubleClick={handleToggleEdit}
         >
             {/* <Box sx={{ p: 1, flexGrow: 1 }}>{idNamePair.name}</Box>
             <Box sx={{ p: 1 }}>
@@ -113,7 +136,7 @@ function ListCard(props) {
             <Grid container spacing={0}>
                 <Grid item xs={8}>
                     <Typography variant='h5'>
-                    {idNamePair.name}
+                    {!editActive ? idNamePair.name : nameElement}
                     </Typography>
                 </Grid>
                 <Grid item xs={4}>
@@ -144,19 +167,19 @@ function ListCard(props) {
                     <Grid item xs={2}>
                     </Grid>
                     <Grid item xs={2}>
-                      <Button fullWidth variant="contained">Publish</Button>
+                      <Button fullWidth variant="contained" onClick={publishList}>Publish</Button>
                     </Grid>
                     <Grid item xs={2}>
-                      <Button fullWidth variant="contained">Delete</Button>
+                      <Button fullWidth variant="contained" onClick={handleDeleteList}>Delete</Button>
                     </Grid>
                     <Grid item xs={2}>
-                      <Button fullWidth variant="contained">Duplicate</Button>
+                      <Button fullWidth variant="contained" onClick={duplicateList}>Duplicate</Button>
                     </Grid>
                   </Grid>
                   </>
                 }
                 <Grid item xs={8}>
-                    Published: 
+                    Published: {idNamePair.published ? 'true' : 'false'}
                 </Grid>
                 <Grid item xs={4}>
                     Listens:
@@ -180,28 +203,7 @@ function ListCard(props) {
             </Grid>
         </ListItem>
 
-    if (editActive) {
-        cardElement =
-            <TextField
-                margin="normal"
-                required
-                fullWidth
-                id={"list-" + idNamePair._id}
-                label="Playlist Name"
-                name="name"
-                autoComplete="Playlist Name"
-                className='list-card'
-                onKeyPress={handleKeyPress}
-                onChange={handleUpdateText}
-                defaultValue={idNamePair.name}
-                inputProps={{style: {fontSize: 48}}}
-                InputLabelProps={{style: {fontSize: 24}}}
-                autoFocus
-            />
-    }
-    return (
-        cardElement
-    );
+    return cardElement
 }
 
 export default ListCard;

@@ -4,6 +4,7 @@ import SplashScreen from './SplashScreen'
 import AuthContext from '../auth'
 import { Grid } from '@mui/material'
 import RightWindow from './RightWindow'
+import GlobalStoreContext from '../store'
 
 export default function HomeWrapper() {
     const { auth } = useContext(AuthContext);

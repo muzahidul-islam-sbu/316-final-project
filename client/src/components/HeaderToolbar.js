@@ -9,9 +9,12 @@ import Input from '@mui/material/Input';
 import MenuIcon from '@mui/icons-material/Menu';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { ScreenNames } from '../store';
+import GlobalStoreContext from '../store';
 
 export default function HeaderToolbar() {
+    const { store } = useContext(GlobalStoreContext);
     const [anchorEl, setAnchorEl] = useState(null);
     const isMenuOpen = Boolean(anchorEl);
 
@@ -23,7 +26,33 @@ export default function HeaderToolbar() {
         setAnchorEl(null);
     };
 
+    const handleInputSubmit = (event) => {
+        if (event.key === 'Enter') {
+            store.searchByQuery();
+            console.log('what')
+        }
+      };
+
     const sortByMenu = (
+        store.currentScreen === ScreenNames.HOME ?
+        <Menu
+            anchorEl={anchorEl}
+            anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}
+            open={isMenuOpen}
+            onClose={handleMenuClose}
+        >
+            <MenuItem onClick={handleMenuClose}>By Creation Date (Old-New)</MenuItem>
+            <MenuItem onClick={handleMenuClose}>By Last Edit Date (New-Old)</MenuItem>
+            <MenuItem onClick={handleMenuClose}>By Name (A-Z)</MenuItem>
+        </Menu> :
         <Menu
             anchorEl={anchorEl}
             anchorOrigin={{
@@ -52,20 +81,25 @@ export default function HeaderToolbar() {
                 <Toolbar>
                     <Box >
                         <Button
-                            variant="contained">
+                            variant="contained"
+                            onClick={() => store.setScreen(ScreenNames.HOME)}>
                             <HomeIcon />
                         </Button>
                         <Button
-                            variant="contained">
+                            variant="contained"
+                            onClick={() => store.setScreen(ScreenNames.ALL)}>
                             <GroupsIcon />
                         </Button>
                         <Button
-                            variant="contained">
+                            variant="contained"
+                            onClick={() => store.setScreen(ScreenNames.USERS)}>
                             <PersonIcon />
                         </Button>
                     </Box>
                     <Box sx={{ flexGrow: 1, paddingLeft: '20px' }}>
-                        <Input placeholder="Search" sx={{ backgroundColor: 'white', width: '800px'}}/>
+                        <Input placeholder="Search" sx={{ backgroundColor: 'white', width: '800px'}} 
+                        onChange={(event) => store.setSearchQuery(event.target.value)}
+                        onKeyDown={handleInputSubmit}/>
                     </Box>
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems:'center', justifyContent:'center'}}>
                         <Typography>Sort By</Typography>

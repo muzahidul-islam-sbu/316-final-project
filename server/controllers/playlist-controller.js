@@ -89,18 +89,18 @@ getPlaylistById = async (req, res) => {
 
         // DOES THIS LIST BELONG TO THIS USER?
         async function asyncFindUser(list) {
-            await User.findOne({ email: list.ownerEmail }, (err, user) => {
-                console.log("user._id: " + user._id);
-                console.log("req.userId: " + req.userId);
-                if (user._id == req.userId) {
-                    console.log("correct user!");
+            // await User.findOne({ email: list.ownerEmail }, (err, user) => {
+            //     console.log("user._id: " + user._id);
+            //     console.log("req.userId: " + req.userId);
+            //     if (user._id == req.userId) {
+            //         console.log("correct user!");
                     return res.status(200).json({ success: true, playlist: list })
-                }
-                else {
-                    console.log("incorrect user!");
-                    return res.status(400).json({ success: false, description: "authentication error" });
-                }
-            });
+                // }
+                // else {
+                //     console.log("incorrect user!");
+                //     return res.status(400).json({ success: false, description: "authentication error" });
+                // }
+            // }
         }
         asyncFindUser(list);
     }).catch(err => console.log(err))
@@ -143,6 +143,36 @@ getPlaylists = async (req, res) => {
         return res.status(200).json({ success: true, data: playlists })
     }).catch(err => console.log(err))
 }
+searchPlaylists = async (req, res) => {
+    const body = req.body;
+    console.log(body)
+    console.log('huh')
+    await Playlist.find({ published: true, }, (err, playlists) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        if (!playlists.length) {
+            return res
+                .status(404)
+                .json({ success: false, error: `Playlists not found` })
+        }
+        const fliteredPlaylists = [];
+        if (body.query !== null) {
+            playlists.forEach(playlist => {
+                if (body.screen === 'ALL') {
+                    if (playlist.name.includes(body.query)) {
+                        fliteredPlaylists.push(playlist)
+                    }
+                } else if (body.screen=== 'USERS') {
+                    if (playlist.username.includes(body.query)) {
+                        fliteredPlaylists.push(playlist)
+                    }
+                }
+            })
+        }
+        return res.status(200).json({ success: true, data: fliteredPlaylists })
+    }).catch(err => console.log(err))
+}
 updatePlaylist = async (req, res) => {
     const body = req.body
     console.log("updatePlaylist: " + JSON.stringify(body));
@@ -175,6 +205,10 @@ updatePlaylist = async (req, res) => {
 
                     list.name = body.playlist.name;
                     list.songs = body.playlist.songs;
+                    list.published = body.playlist.published;
+                    if (body.playlist?.publishedDate) {
+                        list.publishedDate = body.playlist.publishedDate;
+                    }
                     list
                         .save()
                         .then(() => {
@@ -208,5 +242,6 @@ module.exports = {
     getPlaylistById,
     getUserPlaylists,
     getPlaylists,
-    updatePlaylist
+    updatePlaylist,
+    searchPlaylists
 }

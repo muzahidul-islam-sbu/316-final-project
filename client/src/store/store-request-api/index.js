@@ -45,13 +45,16 @@ export const updatePlaylistById = (id, playlist) => {
         playlist : playlist
     })
 }
+export const searchPlaylists = (query, screen, filter) => api.post(`/searchplaylists/`, 
+{query: query, screen: screen, filter: filter})
 
 const apis = {
     createPlaylist,
     deletePlaylistById,
     getPlaylistById,
     getUserPlaylists,
-    updatePlaylistById
+    updatePlaylistById,
+    searchPlaylists
 }
 
 export default apis
