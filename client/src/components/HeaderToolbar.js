@@ -9,7 +9,7 @@ import Input from '@mui/material/Input';
 import MenuIcon from '@mui/icons-material/Menu';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { ScreenNames } from '../store';
 import GlobalStoreContext from '../store';
 
@@ -18,13 +18,27 @@ export default function HeaderToolbar() {
     const [anchorEl, setAnchorEl] = useState(null);
     const isMenuOpen = Boolean(anchorEl);
 
+    // Swap between sort menuitems to refresh
+    useEffect(() => {
+        if (store.currentScreen === ScreenNames.HOME) {
+            store.loadUserPlaylists()
+        } else {
+            store.searchByQuery()
+        }
+    }, [store.sortCriteria])
+
     const handleSortMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
     };
 
-    const handleMenuClose = () => {
+    const handleMenuClose = (event) => {
         setAnchorEl(null);
     };
+
+    const handleMenuSelect = (event) => {
+        console.log(event.target.innerText)
+        store.setSortCriteria(event.target.innerText);
+    }
 
     const handleInputSubmit = (event) => {
         if (event.key === 'Enter') {
@@ -48,6 +62,7 @@ export default function HeaderToolbar() {
             }}
             open={isMenuOpen}
             onClose={handleMenuClose}
+            onClick={handleMenuSelect}
         >
             <MenuItem onClick={handleMenuClose}>By Creation Date (Old-New)</MenuItem>
             <MenuItem onClick={handleMenuClose}>By Last Edit Date (New-Old)</MenuItem>
@@ -66,6 +81,7 @@ export default function HeaderToolbar() {
             }}
             open={isMenuOpen}
             onClose={handleMenuClose}
+            onClick={handleMenuSelect}
         >
             <MenuItem onClick={handleMenuClose}>Name (A-Z)</MenuItem>
             <MenuItem onClick={handleMenuClose}>Publish Date (Newest)</MenuItem>
